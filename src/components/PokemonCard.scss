@@ -1,0 +1,85 @@
+.pokemon-card {
+  position: relative;
+  width: 240px;
+  height: 350px;
+  padding: 15px 25px;
+  margin: 0 0 25px;
+  text-align: left;
+  border-radius: 12px;
+  border: 1px solid #94888863;
+  transition: box-shadow .35s ease;
+  cursor: pointer;
+
+  &:hover {
+    box-shadow: 2px 2px 5px 0px #47504e6b;
+  }
+
+  .pokemon-image {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    width: 130px;
+    height: 130px;
+  }
+
+  .pokemon-name {
+    font-size: 22px;
+    font-weight: bold;
+    text-transform: capitalize;
+    margin-bottom: 6px;;
+  }
+
+  .pokemon-hp {
+    font-size: 18px;
+    font-weight: bold;
+    color: #FE7675;
+  }
+
+  .pokemon-hp-icon {
+    color: #FE7675;
+    font-size: 18px;
+    margin-right: 6px;
+  }
+
+  .pokemon-types {
+    display: flex;
+    list-style-type: none;
+    padding: 0;
+    margin: 15px 0 0;
+
+    > li {
+      margin-right: 6px;
+
+      &:last-child {
+        margin-right: 0;;
+      }
+    }
+  }
+
+  .pokemon-label {
+    margin-top: 20px;
+    display: inline-block;
+    padding: 4px 6px;
+    font-size: 14px;
+    border-radius: 8px;
+    color: #5d567f;
+    background-color: #d8e7e457;
+  }
+
+  .pokemon-separator {
+    position: relative;
+    overflow: visible;
+    margin: 20px 0;
+    border-color: #bfbfbf;
+
+    &::after {
+      content: '';
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      top: -10px;
+      left: calc(50% - 10px);
+      background: url('../icons/pokeball.svg');
+    }
+  }
+}

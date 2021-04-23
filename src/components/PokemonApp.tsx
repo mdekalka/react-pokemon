@@ -1,17 +1,22 @@
 import { useEffect } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
-import { fetchPokemons } from '../slices/pokemonsSlice';
+import { fetchPokemons, selectPokemons } from '../slices/pokemonsSlice';
+import { PokemonList } from './PokemonList';
+
+import './PokemonApp.scss';
 
 export const PokemonApp = () => {
   const dispatch = useDispatch();
+  const pokemons = useSelector(selectPokemons);
 
   useEffect(() => {
     dispatch(fetchPokemons());
   }, []);
 
-  
   return (
-    <div>asfd</div>
+    <div className="pokemon-app">
+      <PokemonList pokemons={pokemons} />
+    </div>
   )
 }
