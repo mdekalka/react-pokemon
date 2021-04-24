@@ -29,24 +29,18 @@ const constructEvolutionChain = (evolutionData) => {
 
   const evolvingChain = [];
   const findEvolutionNode = (evolutionChain) => {
-    if (!evolutionChain.species && !evolutionChain.evolves_to.length) return;
-
-    debugger
+    if (!evolutionChain || !evolutionChain.species) return;
 
     if (evolutionChain.species) {
       evolvingChain.push(evolutionChain.species);
 
-      findEvolutionNode(evolutionChain.evolves_to);
-    } else {
-      const evolveNode = evolutionChain.evolves_to[0];
-
-      findEvolutionNode(evolveNode);
+      findEvolutionNode(evolutionChain.evolves_to[0]);
     }
   }
 
   findEvolutionNode(evolutionData.chain);
 
-  debugger
+  return evolvingChain;
 }
 
 export const fetchPokemonSpecies = createAsyncThunk<any, number, {state: RootState}>('evolution/fetchPokemonSpecies', async (pokemonId, thunkAPI) => {
