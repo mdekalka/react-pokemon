@@ -97,7 +97,7 @@ export const pokemonsSlice = createSlice({
       }
 
       state.entitiesFetching = false;
-      data.forEach(({ data }) => state.entities[data.id] = data)
+      data.forEach(({ data }) => state.entities[data.id] = data);
     })
   }
 })

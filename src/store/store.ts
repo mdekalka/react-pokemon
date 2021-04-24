@@ -1,11 +1,13 @@
 import { configureStore } from '@reduxjs/toolkit';
 
-import pokemonsSlice from '../slices/pokemonsSlice'
+import pokemonsSlice from '../slices/pokemonsSlice';
+import evolutionSlice from '../slices/evolutionSlice';
 
 
 const store =  configureStore({
   reducer: {
-    pokemons: pokemonsSlice
+    pokemons: pokemonsSlice,
+    evolution: evolutionSlice
   },
 })
 

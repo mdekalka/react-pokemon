@@ -1,14 +1,19 @@
+import { useEffect } from 'react';
+import { useDispatch } from 'react-redux';
+
+import { fetchPokemonSpecies } from '../slices/evolutionSlice';
 
 import './PokemonEvolution.scss';
 
 interface PokemonEvolutionProps {
   pokemon: any;
-  onHandleClick: (pokemonId: number) => void;
 }
 
-export const PokemonEvolution = ({ pokemon, onHandleClick }: PokemonEvolutionProps) => {
+export const PokemonEvolution = ({ pokemon }: PokemonEvolutionProps) => {
+  const dispatch = useDispatch();
+
   const handleClick = () => {
-    onHandleClick(pokemon?.id);
+    dispatch(fetchPokemonSpecies(pokemon.id));
   }
 
   return (

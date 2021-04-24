@@ -28,7 +28,7 @@ export const PokemonList = ({ pokemons }: PokemonListProps) => {
       {pokemons.map(pokemon => {
         return (
           <PokemonCard key={pokemon.id}  pokemon={pokemon}>
-            <PokemonEvolution pokemon={pokemon} onHandleClick={() => {}} />
+            <PokemonEvolution pokemon={pokemon} />
             <PokemonAttributes pokemon={pokemon} attributes={attributes} />
           </PokemonCard>
         )

@@ -21,5 +21,5 @@ interface PokemonTypeProps {
 export const PokemonType = ({ type }: PokemonTypeProps) => {
   const icon = iconMapper[type];
 
-  return icon ? <span className={`type-icon ${type}`}><img src={icon.file} /></span> : null
+  return icon ? <span data-tooltip={type} className={`type-icon ${type}`}><img src={icon.file} /></span> : null
 }
