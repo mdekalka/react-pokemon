@@ -4,24 +4,41 @@ import { httpRequest } from '../workflows/httpWorkflow';
 import { RootState } from '../store/store';
 
 
-interface  EvolutionState {
-  entities: { [key: string]: any },
-  fetching: boolean,
-  error: null | Error
+interface Species {
+  hapiness?: number
+  captureRate?: number
+  generation?: string
+  curentForm?: string
 }
+interface EvolutionChain {
+  [index: number]: string
+}
+interface Evolution extends Species {
+  chain?: EvolutionChain
+}
+interface Entity {
+  fetching: boolean,
+  error: null | Error,
+  evolution: Evolution
+}
+interface  EvolutionState {
+  entities: { [key: string]: Entity }
+}
+
 
 const initialState: EvolutionState = {
-  entities: {},
-  fetching: false,
-  error: null
+  entities: {}
 }
 
-const normalizeSpeciesData = (speciesData: any) => {
-  if (!speciesData) return;
+const normalizeSpeciesData = (speciesData: any): Species => {
+  const { base_happiness, capture_rate, generation, name } = speciesData;
 
-  const { base_happiness, capture_rate, generation, name, id } = speciesData;
-
-  return { hapiness: base_happiness, captureRate: capture_rate, generation, curentForm: { name, id } };
+  return {
+    hapiness: base_happiness,
+    captureRate: capture_rate,
+    generation: generation.name,
+    curentForm: name
+  };
 }
 
 const constructEvolutionChain = (evolutionData) => {
@@ -32,7 +49,7 @@ const constructEvolutionChain = (evolutionData) => {
     if (!evolutionChain || !evolutionChain.species) return;
 
     if (evolutionChain.species) {
-      evolvingChain.push(evolutionChain.species);
+      evolvingChain.push(evolutionChain.species.name);
 
       findEvolutionNode(evolutionChain.evolves_to[0]);
     }
@@ -41,6 +58,19 @@ const constructEvolutionChain = (evolutionData) => {
   findEvolutionNode(evolutionData.chain);
 
   return evolvingChain;
+}
+
+const createEvolutionEntity = (entity: Partial<Entity>) => {
+  return {
+    fetching: false,
+    error: null,
+    evolution: {},
+    ...entity
+  }
+}
+
+const getEntityById = (state: EvolutionState, id: number) => {
+  return state.entities[id];
 }
 
 export const fetchPokemonSpecies = createAsyncThunk<any, number, {state: RootState}>('evolution/fetchPokemonSpecies', async (pokemonId, thunkAPI) => {
@@ -75,44 +105,52 @@ export const evolutionSlice = createSlice({
   initialState,
   reducers: {},
   extraReducers: (builder) => {
-    builder.addCase(fetchPokemonSpecies.pending, (state) => {
-      state.fetching = true;
+    builder.addCase(fetchPokemonSpecies.pending, (state, action) => {
+      const id = action.meta.arg;
+      const entity = getEntityById(state, id);
+
+      if (entity) {
+        entity.fetching = true;
+      } else {
+        state.entities[id] = createEvolutionEntity({ fetching: true });
+      }
     });
 
     builder.addCase(fetchPokemonSpecies.fulfilled, (state, action) => {
       const { data, error } = action.payload;
+      const id = action.meta.arg;
+      const entity = getEntityById(state, id);
 
       if (error) {
-        state.fetching = false;
-        state.error = error;
+        entity.fetching = false;
+        entity.error = error
         return;
       }
-      state.entities[data.id] = normalizeSpeciesData(data);
+
+      entity.evolution = normalizeSpeciesData(data);
     });
 
     builder.addCase(fetchPokemonEvolutionChain.fulfilled, (state, action) => {
       const { data, error } = action.payload;
+      const { id } = action.meta.arg;
+      const entity = getEntityById(state, id);
 
       if (error) {
-        state.fetching = false;
-        state.error = error;
+        entity.fetching = false;
+        entity.error = error;
         return;
       }
 
-      state.fetching = false;
-
-      const { id } = action.meta.arg;
-      const entity = state.entities[id];
-
-      if (entity) {
-        entity.evolutionChain = constructEvolutionChain(data);
-      }
+      entity.fetching = false;
+      entity.evolution.chain = constructEvolutionChain(data);
     });
   }
 })
 
-export const selectFetching = (state: RootState) => {
-  return state.evolution.fetching;
+export const selectEvolution = (state: RootState, pokemonId: number) => {
+  const entity = getEntityById(state.evolution, pokemonId);
+
+  return entity;
 }
 
 
