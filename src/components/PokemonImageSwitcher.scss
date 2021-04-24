@@ -1,0 +1,53 @@
+.pokemon-image-switcher {
+  position: relative;
+  width: 130px;
+  height: 130px;
+
+  .checkbox-input {
+    opacity: 0;
+    visibility: hidden;
+    position: absolute;
+
+    &:checked {
+      ~ .checkbox-custom {
+        background: url('../icons/pokeball.svg') transparent no-repeat;
+        border: none;
+      }
+    }
+  }
+
+  .checkbox-custom {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    margin-left: auto;
+    width: 20px;
+    height: 20px;
+    border-radius: 100px;
+    background-color: #fff;
+    border: 2px solid #929e91;
+    z-index: 10;
+    cursor: pointer;
+    transition: border-color .3s ease;
+
+    &:hover {
+      border-color: #ee5281;
+    }
+  }
+
+  .pokemon-image {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 130px;
+    height: 130px;
+    transition: opacity .15s ease-out;
+
+    &.hidden {
+      opacity: 0;
+    }
+  }
+}
+
+

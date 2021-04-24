@@ -1,0 +1,41 @@
+.pokemons-attributes {
+  display: flex;
+  justify-content: space-between;
+  text-align: center;
+  border-top: 1px solid #bfbfbf;
+  padding-top: 10px;
+
+  &-item {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    padding: 0 10px;
+
+    &:not(:first-child){
+      border-left:1px solid #bfb3b3;
+    }
+  }
+
+  &-name {
+    text-transform: capitalize;
+    font-size: 14px;
+    font-weight: bold;
+  }
+
+  &-value {
+    font-weight: bold;
+
+    &.high {
+      color: #5caa3e;
+    }
+
+    &.medium {
+      color: #d8bb17;
+    }
+
+    &.low {
+      color: #e21717;
+    }
+  }
+}

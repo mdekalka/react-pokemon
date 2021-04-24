@@ -15,25 +15,27 @@ interface PokemonList extends PokemonListResponse {
 }
 
 interface  PokemonState {
-  currentList: PokemonList[],
+  list: PokemonList[],
+  listFetching: boolean,
   nextUrlParams: string,
   previousUrlParams: string,
   entities: { [key: string]: any },
-  fetching: boolean,
+  entitiesFetching: boolean,
   error: null | Error
 }
 
 const initialState: PokemonState = {
-  currentList: [],
+  list: [],
+  listFetching: false,
   nextUrlParams: '',
   previousUrlParams: '',
   entities: {},
-  fetching: false,
+  entitiesFetching: false,
   error: null
 }
 
 export const fetchPokemons = createAsyncThunk('pokemon/fetchPokemons', async (_, { dispatch }) => {
-  const response = await httpRequest('/pokemon');
+  const response = await httpRequest('/pokemon?limit=8');
 
   if (!response.error) {
     const pokemonsUrls = response.data?.results.map((result: PokemonListResponse) => result.url);
@@ -55,18 +57,13 @@ const formatListResults = (results: PokemonListResponse[]) => {
   return results.map(({ name, url }) => ({ id: getLastCharBeforeSlash(url), name, url }));
 }
 
-const handleError = (state: PokemonState, error: PokemonState['error']) => {
-  state.fetching = false;
-  state.error = error;
-}
-
 export const pokemonsSlice = createSlice({
   name: 'pokemons',
   initialState,
   reducers: {},
   extraReducers: (builder) => {
     builder.addCase(fetchPokemons.pending, (state) => {
-      state.fetching = true;
+      state.listFetching = true;
     });
 
     builder.addCase(fetchPokemons.fulfilled, (state, action) => {
@@ -74,28 +71,41 @@ export const pokemonsSlice = createSlice({
       const nextUrlParams = data.next ? getSearchFromUrl(data.next) : '';
       const previousUrlParams = data.previous ? getSearchFromUrl(data.previous) : '';
 
-      if (error) return handleError(state, error);
+      if (error) {
+        state.listFetching = false;
+        state.error = error;
+        return;
+      }
 
-      state.currentList = formatListResults(data.results);
+      state.list = formatListResults(data.results);
+      state.listFetching = false;
       state.nextUrlParams = nextUrlParams;
       state.previousUrlParams = previousUrlParams;
+    });
+
+    builder.addCase(fetchPokemonsInfo.pending, (state) => {
+      state.entitiesFetching = true;
     });
 
     builder.addCase(fetchPokemonsInfo.fulfilled, (state, action) => {
       const { data, error } = action.payload;
 
-      if (error) return handleError(state, error);
+      if (error) {
+        state.entitiesFetching = false;
+        state.error = error;
+        return;
+      }
 
-      state.fetching = false;
+      state.entitiesFetching = false;
       data.forEach(({ data }) => state.entities[data.id] = data)
     })
   }
 })
 
 export const selectPokemons = (state: RootState) => {
-  const { currentList, entities, fetching } = state.pokemons;
+  const { list, entities, entitiesFetching } = state.pokemons;
 
-  return fetching ? [] : currentList.map(({ id }) => entities[id]);
+  return entitiesFetching ? [] : list.map(({ id }) => entities[id]);
 }
 
 // Action creators are generated for each case reducer function

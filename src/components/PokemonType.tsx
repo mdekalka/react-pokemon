@@ -2,6 +2,7 @@ import pathUtil from 'path';
 
 import './PokemonType.scss';
 
+// Load all svgs dynamically to avoid repetitive imports
 const typesIcons = require.context ('../icons/types-icons/', true, /\.svg$/)
 const iconMapper = typesIcons
   .keys()

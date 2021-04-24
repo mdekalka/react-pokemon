@@ -1,13 +1,10 @@
 
-interface AttributeInput {
+export interface Attributes {
   name: string;
   alias?: string
 }
-interface AttrinuteOutput extends AttributeInput {
-  value: number;
-}
 
-export const getPokemonAttributes = (pokemon: any, attributes: AttributeInput[] = []) => {
+export const getPokemonAttributes = (pokemon: any, attributes: Attributes[] = []) => {
   if (!pokemon) return;
 
   const attributesNames = attributes.map(attribute => attribute.name);
@@ -25,4 +22,36 @@ export const getPokemonTypes = (pokemon: any) => {
   if (!pokemon) return;
 
   return pokemon.types.map(typeItem => typeItem.type.name);
+}
+
+export const getAttributeLevel = (value: number) => {
+  const highThreshold = 80;
+  const mediumThreshold = 50;
+
+  switch (true) {
+    case value >= highThreshold:
+      return 'high';
+
+    case value >= mediumThreshold:
+      return 'medium';
+
+    default:
+      return 'low';
+  }
+}
+
+export const getPokemonImage = (pokemonId: string) => {
+  return `https://pokeres.bastionbot.org/images/pokemon/${pokemonId}.png`;
+}
+
+export const getOfficialImage = (pokemon: any) => {
+  if (!pokemon) return null;
+
+  return pokemon.sprites?.other?.['official-artwork']?.front_default;
+}
+
+export const getDreamWorldImage = (pokemon: any) => {
+  if (!pokemon) return null;
+
+  return pokemon.sprites?.other?.dream_world?.front_default;
 }
