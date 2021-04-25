@@ -37,7 +37,7 @@ interface FetchPokemonsOptions {
 
 const getPokemonsUrl = (state: RootState, options: FetchPokemonsOptions) => {
   const { pokemons } = state;
-  const defaultOptions = { limit: 8, previous: false, next: false };
+  const defaultOptions = { limit: 10, previous: false, next: false };
   const requestOptions = { ...defaultOptions, ...options };
 
   return requestOptions.next ? pokemons.nextUrl : requestOptions.previous ? pokemons.previousUrl : `/pokemon?limit=${requestOptions.limit}`;
@@ -106,10 +106,10 @@ export const pokemonsSlice = createSlice({
   }
 })
 
-export const selectPokemons = (state: RootState) => {
+export const selectPokemons = (state: RootState, size: number) => {
   const { list, entities, entitiesFetching } = state.pokemons;
 
-  return entitiesFetching ? [] : list.map(({ name }) => entities[name]);
+  return entitiesFetching ? [] : list.slice(0, size).map(({ name }) => entities[name]);
 }
 
 export const selectPokemonByName = (state: RootState, name: string) => {
