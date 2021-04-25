@@ -1,8 +1,16 @@
 .evolution-chain {
   position: relative;
   display: flex;
-  justify-content: space-between;
+  // justify-content: space-between;
   align-items: center;
+  opacity: 0;
+  position: absolute;
+  animation: jumpIn .5s ease-in-out .7s forwards;
+
+  &.right {
+    justify-content: flex-end;
+  }
+  
 
   // &::after {
   //   content: '';
@@ -56,5 +64,18 @@
     width: 60px;
     height: 60px;
     border-radius: 50%;
+  }
+}
+
+@keyframes jumpIn {
+  from {
+    transform: translateY(15px);
+    opacity: 0;
+    position: relative;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+    position: relative;
   }
 }

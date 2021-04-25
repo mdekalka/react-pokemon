@@ -1,4 +1,4 @@
-
+import cx from 'classnames';
 import { useSelector } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAngleDoubleRight } from '@fortawesome/free-solid-svg-icons';
@@ -28,7 +28,7 @@ export const PokemonEvolutionForms = ({ evolution }: PokemonEvolutionChainProps)
   if (!previousForm && !nextForm) return null;
 
   return (
-    <div className="evolution-chain">
+    <div className={cx('evolution-chain', { right: !!nextForm && !previousForm })}>
       {previousForm ? (
         <div className="evolution-form previous-form">
           <p className="evolution-name align-left">{previousForm?.name}</p>
