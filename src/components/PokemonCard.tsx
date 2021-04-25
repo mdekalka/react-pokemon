@@ -29,7 +29,7 @@ export const PokemonCard = ({ pokemon, children }: PokemonCardProps) => {
           <p className="pokemon-name">{name}</p>
           <FontAwesomeIcon icon={faHeart} className="pokemon-hp-icon" />
           <span className="pokemon-hp">{hpAttribute[0]?.value}HP</span>
-          <ul className="pokemon-types reset-list">{types.map(type => <li ><PokemonType type={type} /></li>)}</ul>
+          <ul className="pokemon-types reset-list">{types.map((type, index) => <li key={index}><PokemonType type={type} /></li>)}</ul>
         </div>
         <PokemonImageSwitcher pokemon={pokemon} />
       </div>

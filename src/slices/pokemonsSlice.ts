@@ -1,7 +1,6 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk, createAction } from '@reduxjs/toolkit';
 
 import { httpRequest } from '../workflows/httpWorkflow';
-import { getSearchFromUrl } from '../utils/url';
 import { RootState } from '../store/store'; 
 
 interface PokemonList {
@@ -16,7 +15,8 @@ interface  PokemonState {
   previousUrl: string,
   entities: { [key: string]: any },
   entitiesFetching: boolean,
-  error: null | Error
+  error: null | Error,
+  responseDate: number
 }
 
 const initialState: PokemonState = {
@@ -26,7 +26,8 @@ const initialState: PokemonState = {
   previousUrl: '',
   entities: {},
   entitiesFetching: false,
-  error: null
+  error: null,
+  responseDate: 0
 }
 
 interface FetchPokemonsOptions {
@@ -37,7 +38,7 @@ interface FetchPokemonsOptions {
 
 const getPokemonsUrl = (state: RootState, options: FetchPokemonsOptions) => {
   const { pokemons } = state;
-  const defaultOptions = { limit: 10, previous: false, next: false };
+  const defaultOptions = { limit: 8, previous: false, next: false };
   const requestOptions = { ...defaultOptions, ...options };
 
   return requestOptions.next ? pokemons.nextUrl : requestOptions.previous ? pokemons.previousUrl : `/pokemon?limit=${requestOptions.limit}`;
@@ -48,16 +49,40 @@ export const fetchPokemons = createAsyncThunk<any, FetchPokemonsOptions, { state
   const response = await httpRequest(url);
 
   if (!response.error) {
-    const pokemonsUrls = response.data?.results.map((result: PokemonList) => result.url);
-
-    dispatch(fetchPokemonsInfo(pokemonsUrls));
+    dispatch(fetchPokemonsInfo(response.data?.results));
   }
 
   return response;
 })
 
-const fetchPokemonsInfo = createAsyncThunk('pokemon/fetchPokemonsInfo', async (urlList: string[]) => {
-  return Promise.all(urlList.map(url => httpRequest(url)))
+const getPokemonsInfoUrls = (store: RootState, pokemonList: PokemonList[]) => {
+  const { pokemons } = store;
+
+  // Check if requested pokemons already in the cache, if not just return related url
+  return pokemonList.reduce((result: string[], current: PokemonList): string[] => {
+    const pokemonEntity = pokemons.entities[current.name];
+
+    if (!pokemonEntity) {
+      result.push(current.url);
+    }
+
+    return result;
+  }, []);
+}
+const fetchPokemonsInfoStart = createAction('pokemon/fetchPokemonsInfoStart', () => {
+  return {
+    payload: null
+  }
+})
+
+export const fetchPokemonsInfo = createAsyncThunk<any, PokemonList[], { state: RootState }>('pokemon/fetchPokemonsInfo', async (pokemonList, { getState, dispatch }) => {
+  dispatch(fetchPokemonsInfoStart());
+  // debugger
+
+  const requestUrls = getPokemonsInfoUrls(getState(), pokemonList);
+  // debugger
+
+  return Promise.all(requestUrls.map(url => httpRequest(url)))
     .then(response => {
       return { data: response, error: null, responseDate: Date.now() };
     });
@@ -66,7 +91,11 @@ const fetchPokemonsInfo = createAsyncThunk('pokemon/fetchPokemonsInfo', async (u
 export const pokemonsSlice = createSlice({
   name: 'pokemons',
   initialState,
-  reducers: {},
+  reducers: {
+    resetPokemonsInfo(state) {
+      state.entities = {};
+    }
+  },
   extraReducers: (builder) => {
     builder.addCase(fetchPokemons.pending, (state) => {
       state.listFetching = true;
@@ -92,7 +121,7 @@ export const pokemonsSlice = createSlice({
     });
 
     builder.addCase(fetchPokemonsInfo.fulfilled, (state, action) => {
-      const { data, error } = action.payload;
+      const { data, error, responseDate } = action.payload;
 
       if (error) {
         state.entitiesFetching = false;
@@ -101,15 +130,16 @@ export const pokemonsSlice = createSlice({
       }
 
       state.entitiesFetching = false;
+      state.responseDate = responseDate;
       data.forEach(({ data }) => state.entities[data.name] = data);
     })
   }
 })
 
-export const selectPokemons = (state: RootState, size: number) => {
+export const selectPokemons = (state: RootState) => {
   const { list, entities, entitiesFetching } = state.pokemons;
 
-  return entitiesFetching ? [] : list.slice(0, size).map(({ name }) => entities[name]);
+  return entitiesFetching ? [] : list.map(({ name }) => entities[name]);
 }
 
 export const selectPokemonByName = (state: RootState, name: string) => {
@@ -128,6 +158,6 @@ export const selectUrls = (state: RootState) => {
 }
 
 // Action creators are generated for each case reducer function
-// export const { } = pokemonsSlice.actions
+export const { resetPokemonsInfo } = pokemonsSlice.actions
 
 export default pokemonsSlice.reducer

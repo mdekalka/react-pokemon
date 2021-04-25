@@ -10,11 +10,11 @@ import './PokemonApp.scss';
 
 // Actually funny story, when we load x items from API it might be a situation where we didn't load the final form of last pokemon,
 // so we preload x + y pokemons to have all evolution forms on render.
-const GRID_SIZE = 8;
+// const GRID_SIZE = 8;
 
 export const PokemonApp = () => {
   const dispatch = useDispatch();
-  const pokemons = useSelector((state: RootState) => selectPokemons(state, GRID_SIZE));
+  const pokemons = useSelector((state: RootState) => selectPokemons(state));
   const fetching = useSelector(selectFetching);
   const urls = useSelector(selectUrls);
 
