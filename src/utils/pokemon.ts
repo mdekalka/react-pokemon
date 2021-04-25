@@ -40,10 +40,6 @@ export const getAttributeLevel = (value: number) => {
   }
 }
 
-export const getPokemonImage = (pokemonId: string) => {
-  return `https://pokeres.bastionbot.org/images/pokemon/${pokemonId}.png`;
-}
-
 export const getOfficialImage = (pokemon: any) => {
   if (!pokemon) return null;
 

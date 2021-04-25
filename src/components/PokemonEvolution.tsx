@@ -1,11 +1,12 @@
-import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { fetchPokemonSpecies, selectEvolution } from '../slices/evolutionSlice';
 import { RootState } from '../store/store';
 import { PokeBall } from './PokeBall';
+import { PokemonEvolutionForms } from './PokemonEvolutionForms';
 
 import './PokemonEvolution.scss';
+
 
 interface PokemonEvolutionProps {
   pokemon: any;
@@ -13,18 +14,19 @@ interface PokemonEvolutionProps {
 
 export const PokemonEvolution = ({ pokemon }: PokemonEvolutionProps) => {
   const dispatch = useDispatch();
-  const evolutionData = useSelector((state: RootState) => selectEvolution(state, pokemon.id));
-  const evolutionChain = evolutionData?.evolution?.chain;
+  const evolutionData = useSelector((state: RootState) => selectEvolution(state, pokemon.name));
+  const isFinished = evolutionData?.state === 'finished';
 
   const handleClick = () => {
-    if (evolutionData?.fetching || evolutionChain) return;
+    if (evolutionData?.fetching || isFinished) return;
     
-    dispatch(fetchPokemonSpecies(pokemon.id));
+    dispatch(fetchPokemonSpecies(pokemon.name));
   }
 
   return (
     <div className="pokemon-evolution">
-      {<PokeBall fetching={evolutionData?.fetching} finished={!!evolutionChain} onClick={handleClick} />}
+      {<PokeBall fetching={evolutionData?.fetching} finished={isFinished} onClick={handleClick} />}
+      <PokemonEvolutionForms evolution={evolutionData?.evolution} />
     </div>
   )
 }

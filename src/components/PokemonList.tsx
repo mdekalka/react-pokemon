@@ -1,8 +1,3 @@
-import { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-
-import { fetchPokemons, selectPokemons } from '../slices/pokemonsSlice';
-import { getPokemonAttributes, getPokemonTypes, getAttributeLevel, getPokemonImage } from '../utils/pokemon';
 import { PokemonCard } from './PokemonCard';
 import { PokemonEvolution } from './PokemonEvolution';
 import { PokemonAttributes } from './PokemonAttributes';

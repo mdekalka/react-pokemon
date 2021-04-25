@@ -1,7 +1,6 @@
 .pokeball {
   display: inline-block;
   position: relative;
-  padding: 10px 0;
 
   &:hover:not(.finished):not(.fetching) {
     animation: shake .5s infinite ease-in-out;
@@ -13,6 +12,9 @@
   }
 
   &.finished {
+    // Don't blame me for that, animate <display:none> via CSS is hard, so this was good enough to work.
+    animation: hide 0s linear .7s forwards;
+
     .pokeball-up {
       animation: moveTop .7s cubic-bezier(0.5, 0, 0.75, 0) forwards;
     }
@@ -96,4 +98,9 @@
 @keyframes moveDown {
   from { transform: translateY(0); opacity: 1; } 
   to { transform: translateY(10px); opacity: 0; } 
+}
+
+@keyframes hide {
+  from { height: auto; } 
+  to { height: 0; position: absolute; } 
 }

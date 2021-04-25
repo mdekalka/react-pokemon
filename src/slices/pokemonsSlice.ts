@@ -2,16 +2,11 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
 import { httpRequest } from '../workflows/httpWorkflow';
 import { getSearchFromUrl } from '../utils/url';
-import { getLastCharBeforeSlash } from '../utils/string';
 import { RootState } from '../store/store'; 
 
-interface PokemonListResponse {
+interface PokemonList {
   name: string;
   url: string;
-}
-
-interface PokemonList extends PokemonListResponse {
-  id: string
 }
 
 interface  PokemonState {
@@ -38,7 +33,7 @@ export const fetchPokemons = createAsyncThunk('pokemon/fetchPokemons', async (_,
   const response = await httpRequest('/pokemon?limit=8');
 
   if (!response.error) {
-    const pokemonsUrls = response.data?.results.map((result: PokemonListResponse) => result.url);
+    const pokemonsUrls = response.data?.results.map((result: PokemonList) => result.url);
 
     dispatch(fetchPokemonsInfo(pokemonsUrls));
   }
@@ -52,10 +47,6 @@ const fetchPokemonsInfo = createAsyncThunk('pokemon/fetchPokemonsInfo', async (u
       return { data: response, error: null, responseDate: Date.now() };
     });
 })
-
-const formatListResults = (results: PokemonListResponse[]) => {
-  return results.map(({ name, url }) => ({ id: getLastCharBeforeSlash(url), name, url }));
-}
 
 export const pokemonsSlice = createSlice({
   name: 'pokemons',
@@ -77,7 +68,7 @@ export const pokemonsSlice = createSlice({
         return;
       }
 
-      state.list = formatListResults(data.results);
+      state.list = data.results;
       state.listFetching = false;
       state.nextUrlParams = nextUrlParams;
       state.previousUrlParams = previousUrlParams;
@@ -97,7 +88,7 @@ export const pokemonsSlice = createSlice({
       }
 
       state.entitiesFetching = false;
-      data.forEach(({ data }) => state.entities[data.id] = data);
+      data.forEach(({ data }) => state.entities[data.name] = data);
     })
   }
 })
@@ -105,7 +96,11 @@ export const pokemonsSlice = createSlice({
 export const selectPokemons = (state: RootState) => {
   const { list, entities, entitiesFetching } = state.pokemons;
 
-  return entitiesFetching ? [] : list.map(({ id }) => entities[id]);
+  return entitiesFetching ? [] : list.map(({ name }) => entities[name]);
+}
+
+export const selectPokemonByName = (state: RootState, name: string) => {
+  return state.pokemons.entities[name];
 }
 
 // Action creators are generated for each case reducer function

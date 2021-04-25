@@ -12,8 +12,8 @@ interface PokeBallProps {
 export const PokeBall = ({ fetching, finished, onClick }: PokeBallProps) => {
   return (
     <div className={cx('pokeball', { fetching, finished })} onClick={onClick}>
-    <div className="pokeball-up"></div>
-    <div className="pokeball-down"></div>
-  </div>
+      <div className="pokeball-up"></div>
+      <div className="pokeball-down"></div>
+    </div>
   )
 }

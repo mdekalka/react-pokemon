@@ -3,22 +3,21 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { httpRequest } from '../workflows/httpWorkflow';
 import { RootState } from '../store/store';
 
-
 interface Species {
   hapiness?: number
   captureRate?: number
   generation?: string
   curentForm?: string
 }
-interface EvolutionChain {
-  [index: number]: string
+export interface Evolution extends Species {
+  nextForm?: string
+  previousForm?: string
 }
-interface Evolution extends Species {
-  chain?: EvolutionChain
-}
+
 interface Entity {
   fetching: boolean,
   error: null | Error,
+  state: string,
   evolution: Evolution
 }
 interface  EvolutionState {
@@ -41,42 +40,48 @@ const normalizeSpeciesData = (speciesData: any): Species => {
   };
 }
 
-const constructEvolutionChain = (evolutionData) => {
+const findEvolutionForms = (evolutionData, currentFormName: string) => {
   if (!evolutionData) return;
 
-  const evolvingChain = [];
-  const findEvolutionNode = (evolutionChain) => {
+  const chain: string[] = [];
+  const fillEvolutionChain = (evolutionChain) => {
     if (!evolutionChain || !evolutionChain.species) return;
 
     if (evolutionChain.species) {
-      evolvingChain.push(evolutionChain.species.name);
+      chain.push(evolutionChain.species.name);
 
-      findEvolutionNode(evolutionChain.evolves_to[0]);
+      fillEvolutionChain(evolutionChain.evolves_to[0]);
     }
   }
 
-  findEvolutionNode(evolutionData.chain);
+  fillEvolutionChain(evolutionData.chain);
 
-  return evolvingChain;
+  const curentFormIndex = chain.findIndex(name => name === currentFormName);
+
+  return {
+    previousForm: chain[curentFormIndex - 1],
+    nextForm: chain[curentFormIndex + 1]
+  }
 }
 
 const createEvolutionEntity = (entity: Partial<Entity>) => {
   return {
     fetching: false,
     error: null,
+    state: 'idle',
     evolution: {},
     ...entity
   }
 }
 
-const getEntityById = (state: EvolutionState, id: number) => {
-  return state.entities[id];
+const getEntityByName = (state: EvolutionState, name: string) => {
+  return state.entities[name];
 }
 
-export const fetchPokemonSpecies = createAsyncThunk<any, number, {state: RootState}>('evolution/fetchPokemonSpecies', async (pokemonId, thunkAPI) => {
+export const fetchPokemonSpecies = createAsyncThunk<any, string, {state: RootState}>('evolution/fetchPokemonSpecies', async (pokemonName, thunkAPI) => {
   const { dispatch, getState } = thunkAPI;
   const store = getState();
-  const pokemonEntity = store.pokemons.entities[pokemonId];
+  const pokemonEntity = store.pokemons.entities[pokemonName];
 
   if (!pokemonEntity) {
     return { data: null, error: 'No data available', responseDate: Date.now() };
@@ -88,13 +93,13 @@ export const fetchPokemonSpecies = createAsyncThunk<any, number, {state: RootSta
   if (!response.error) {
     const evolutionChainUrl = response.data?.evolution_chain?.url;
 
-    dispatch(fetchPokemonEvolutionChain({ url: evolutionChainUrl, id: pokemonEntity.id }));
+    dispatch(fetchPokemonEvolutionChain({ url: evolutionChainUrl, name: pokemonEntity.name }));
   }
 
   return response;
 });
 
-export const fetchPokemonEvolutionChain = createAsyncThunk('evolution/fetchPokemonEvolutionChain', async ({ url }: { url: string, id: number }) => {
+export const fetchPokemonEvolutionChain = createAsyncThunk('evolution/fetchPokemonEvolutionChain', async ({ url }: { url: string, name: string }) => {
   const response = await httpRequest(url);
 
   return response;
@@ -106,20 +111,20 @@ export const evolutionSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder.addCase(fetchPokemonSpecies.pending, (state, action) => {
-      const id = action.meta.arg;
-      const entity = getEntityById(state, id);
+      const name = action.meta.arg;
+      const entity = getEntityByName(state, name);
 
       if (entity) {
         entity.fetching = true;
       } else {
-        state.entities[id] = createEvolutionEntity({ fetching: true });
+        state.entities[name] = createEvolutionEntity({ fetching: true });
       }
     });
 
     builder.addCase(fetchPokemonSpecies.fulfilled, (state, action) => {
       const { data, error } = action.payload;
-      const id = action.meta.arg;
-      const entity = getEntityById(state, id);
+      const name = action.meta.arg;
+      const entity = getEntityByName(state, name);
 
       if (error) {
         entity.fetching = false;
@@ -132,23 +137,28 @@ export const evolutionSlice = createSlice({
 
     builder.addCase(fetchPokemonEvolutionChain.fulfilled, (state, action) => {
       const { data, error } = action.payload;
-      const { id } = action.meta.arg;
-      const entity = getEntityById(state, id);
+      const { name } = action.meta.arg;
+      const entity = getEntityByName(state, name);
 
       if (error) {
         entity.fetching = false;
         entity.error = error;
+        entity.state = 'finished';
         return;
       }
 
+      const { previousForm, nextForm } = findEvolutionForms(data, entity.evolution.curentForm);
+
       entity.fetching = false;
-      entity.evolution.chain = constructEvolutionChain(data);
+      entity.state = 'finished';
+      entity.evolution.previousForm = previousForm;
+      entity.evolution.nextForm = nextForm;
     });
   }
 })
 
-export const selectEvolution = (state: RootState, pokemonId: number) => {
-  const entity = getEntityById(state.evolution, pokemonId);
+export const selectEvolution = (state: RootState, pokemonName: string) => {
+  const entity = getEntityByName(state.evolution, pokemonName);
 
   return entity;
 }
