@@ -1,7 +1,6 @@
 .evolution-chain {
   position: relative;
   display: flex;
-  // justify-content: space-between;
   align-items: center;
   opacity: 0;
   position: absolute;
@@ -10,12 +9,6 @@
   &.right {
     justify-content: flex-end;
   }
-  
-
-  // &::after {
-  //   content: '';
-  //   flex: 1;
-  // }
 
   .evolution-name {
     text-transform: capitalize;
@@ -33,14 +26,6 @@
     flex-direction: column;
     padding: 0 8px;
   }
-
-  // .previous-form {
-  //   margin-right: auto;
-  // }
-
-  // .next-form {
-  //   margin-left: auto;
-  // }
 
   .evolution-arrow {
     &.previous {

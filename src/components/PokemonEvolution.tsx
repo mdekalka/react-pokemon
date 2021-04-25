@@ -7,7 +7,6 @@ import { PokemonEvolutionForms } from './PokemonEvolutionForms';
 
 import './PokemonEvolution.scss';
 
-
 interface PokemonEvolutionProps {
   pokemon: any;
 }

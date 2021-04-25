@@ -4,3 +4,31 @@
   flex-direction: row;
   justify-content: space-between;
 }
+
+.pokemon-btn-load {
+  position: absolute;
+  top: 50%;
+  font-size: 56px;
+  border: none;
+  outline: none;
+  background: transparent;
+  cursor: pointer;
+  color: #90c5d3;
+
+  &:disabled {
+    color: #c8cdd1;
+  }
+
+  &.pokemon-btn-left {
+    right: calc(100% + 20px);
+  }
+
+  &.pokemon-btn-right {
+    left: calc(100% + 20px);
+  }
+
+  &:hover:not(:disabled) {
+    color: #3cc0cd;
+  }
+}
+

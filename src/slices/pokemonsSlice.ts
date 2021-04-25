@@ -12,8 +12,8 @@ interface PokemonList {
 interface  PokemonState {
   list: PokemonList[],
   listFetching: boolean,
-  nextUrlParams: string,
-  previousUrlParams: string,
+  nextUrl: string,
+  previousUrl: string,
   entities: { [key: string]: any },
   entitiesFetching: boolean,
   error: null | Error
@@ -22,15 +22,30 @@ interface  PokemonState {
 const initialState: PokemonState = {
   list: [],
   listFetching: false,
-  nextUrlParams: '',
-  previousUrlParams: '',
+  nextUrl: '',
+  previousUrl: '',
   entities: {},
   entitiesFetching: false,
   error: null
 }
 
-export const fetchPokemons = createAsyncThunk('pokemon/fetchPokemons', async (_, { dispatch }) => {
-  const response = await httpRequest('/pokemon?limit=8');
+interface FetchPokemonsOptions {
+  limit?: number
+  next?: boolean
+  previous?: boolean
+}
+
+const getPokemonsUrl = (state: RootState, options: FetchPokemonsOptions) => {
+  const { pokemons } = state;
+  const defaultOptions = { limit: 8, previous: false, next: false };
+  const requestOptions = { ...defaultOptions, ...options };
+
+  return requestOptions.next ? pokemons.nextUrl : requestOptions.previous ? pokemons.previousUrl : `/pokemon?limit=${requestOptions.limit}`;
+}
+
+export const fetchPokemons = createAsyncThunk<any, FetchPokemonsOptions, { state: RootState }>('pokemon/fetchPokemons', async (options, { dispatch, getState }) => {
+  const url = getPokemonsUrl(getState(), options)
+  const response = await httpRequest(url);
 
   if (!response.error) {
     const pokemonsUrls = response.data?.results.map((result: PokemonList) => result.url);
@@ -59,8 +74,6 @@ export const pokemonsSlice = createSlice({
 
     builder.addCase(fetchPokemons.fulfilled, (state, action) => {
       const { data, error } = action.payload;
-      const nextUrlParams = data.next ? getSearchFromUrl(data.next) : '';
-      const previousUrlParams = data.previous ? getSearchFromUrl(data.previous) : '';
 
       if (error) {
         state.listFetching = false;
@@ -70,8 +83,8 @@ export const pokemonsSlice = createSlice({
 
       state.list = data.results;
       state.listFetching = false;
-      state.nextUrlParams = nextUrlParams;
-      state.previousUrlParams = previousUrlParams;
+      state.nextUrl = data.next;
+      state.previousUrl = data.previous;
     });
 
     builder.addCase(fetchPokemonsInfo.pending, (state) => {
@@ -101,6 +114,17 @@ export const selectPokemons = (state: RootState) => {
 
 export const selectPokemonByName = (state: RootState, name: string) => {
   return state.pokemons.entities[name];
+}
+
+export const selectFetching = (state: RootState) => {
+  return state.pokemons.listFetching || state.pokemons.entitiesFetching;
+}
+
+export const selectUrls = (state: RootState) => {
+  return {
+    previousUrl: state.pokemons.previousUrl,
+    nextUrl: state.pokemons.nextUrl,
+  }
 }
 
 // Action creators are generated for each case reducer function

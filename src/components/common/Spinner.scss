@@ -1,5 +1,7 @@
 
 .spinner {
+  // TODO: fix later, was copy-pasted from codepen and just doesn't work well with border-box
+  box-sizing: content-box;
   position: relative;
   height: 100px;
   width: 100px;
@@ -15,6 +17,7 @@
     width: 100px;
     background: black;
     top: 50px;
+    left: 0;
     transform: translatey(-50%);
   }
   

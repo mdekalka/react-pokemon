@@ -78,7 +78,7 @@ const getEntityByName = (state: EvolutionState, name: string) => {
   return state.entities[name];
 }
 
-export const fetchPokemonSpecies = createAsyncThunk<any, string, {state: RootState}>('evolution/fetchPokemonSpecies', async (pokemonName, thunkAPI) => {
+export const fetchPokemonSpecies = createAsyncThunk<any, string, { state: RootState }>('evolution/fetchPokemonSpecies', async (pokemonName, thunkAPI) => {
   const { dispatch, getState } = thunkAPI;
   const store = getState();
   const pokemonEntity = store.pokemons.entities[pokemonName];
