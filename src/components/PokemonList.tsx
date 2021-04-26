@@ -1,7 +1,3 @@
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowAltCircleRight } from '@fortawesome/free-solid-svg-icons';
-import { faArrowAltCircleLeft } from '@fortawesome/free-solid-svg-icons';
-
 import { PokemonCard } from './PokemonCard';
 import { PokemonEvolution } from './PokemonEvolution';
 import { PokemonAttributes } from './PokemonAttributes';
@@ -10,10 +6,7 @@ import './PokemonList.scss';
 
 
 interface PokemonListProps {
-  pokemons: any[];
-  onPokemonsLoad: (direction: number) => void;
-  urls: { previousUrl: string, nextUrl: string };
-  fetching: boolean
+  pokemons: any[]
 }
 
 const attributes = [
@@ -24,14 +17,8 @@ const attributes = [
   { name: 'speed', alias: 'def' }
 ]
 
-export const PokemonList = ({ pokemons, onPokemonsLoad, urls, fetching }: PokemonListProps) => {
+export const PokemonList = ({ pokemons }: PokemonListProps) => {
   return (
-    <>
-      {urls.previousUrl && (
-        <button className="pokemon-btn-load pokemon-btn-left" disabled={fetching} onClick={() => onPokemonsLoad(0)}>
-          <FontAwesomeIcon icon={faArrowAltCircleLeft} />
-        </button>
-      )}
       <div className="pokemon-list">
         {pokemons.map(pokemon => {
           return (
@@ -42,11 +29,5 @@ export const PokemonList = ({ pokemons, onPokemonsLoad, urls, fetching }: Pokemo
           )
         })}
       </div>
-      {urls.nextUrl && (
-        <button className="pokemon-btn-load pokemon-btn-right" disabled={fetching} onClick={() => onPokemonsLoad(1)}>
-          <FontAwesomeIcon icon={faArrowAltCircleRight} />
-        </button>
-      )}
-    </>
   )
 }

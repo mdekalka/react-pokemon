@@ -33,21 +33,18 @@ const initialState: PokemonState = {
 interface FetchPokemonsOptions {
   limit?: number
   page?: number
-  next?: boolean
-  previous?: boolean
 }
 
-const getPokemonsUrl = (state: RootState, options: FetchPokemonsOptions) => {
-  const { pokemons } = state;
-  const defaultOptions = { limit: 8, previous: false, next: false, page: 0 };
+const getPokemonsUrl = (options: FetchPokemonsOptions) => {
+  const defaultOptions = { limit: 8, page: 0 };
   const requestOptions = { ...defaultOptions, ...options };
   const params = [`offset=${(requestOptions.page - 1) * requestOptions.limit}`, `limit=${requestOptions.limit}`, ]
 
-  return requestOptions.next ? pokemons.nextUrl : requestOptions.previous ? pokemons.previousUrl : `/pokemon?${params.join('&')}`;
+  return `/pokemon?${params.join('&')}`;
 }
 
-export const fetchPokemons = createAsyncThunk<any, FetchPokemonsOptions, { state: RootState }>('pokemon/fetchPokemons', async (options, { dispatch, getState }) => {
-  const url = getPokemonsUrl(getState(), options)
+export const fetchPokemons = createAsyncThunk<any, FetchPokemonsOptions, { state: RootState }>('pokemon/fetchPokemons', async (options, { dispatch }) => {
+  const url = getPokemonsUrl(options)
   const response = await httpRequest(url);
 
   if (!response.error) {
