@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useHistory, useParams, useLocation } from 'react-router-dom';
 
 import { fetchPokemons, selectPokemons, selectFetching, selectUrls } from '../slices/pokemonsSlice';
 import { PokemonList } from './PokemonList';
@@ -14,18 +15,23 @@ import './PokemonApp.scss';
 
 export const PokemonApp = () => {
   const dispatch = useDispatch();
+  const history = useHistory();
+  const { pageNumber } = useParams<{ pageNumber: string }>();
+
   const pokemons = useSelector((state: RootState) => selectPokemons(state));
   const fetching = useSelector(selectFetching);
   const urls = useSelector(selectUrls);
 
   const loadPokemons = (direction: number) => {
     const options = direction ? { next: true } : { previous : true };
+    const page = direction ? parseInt(pageNumber) + 1 : parseInt(pageNumber) - 1;
 
+    history.push(`/${page}`);
     dispatch(fetchPokemons(options));
   }
 
   useEffect(() => {
-    dispatch(fetchPokemons(null));
+    dispatch(fetchPokemons({ page: parseInt(pageNumber) }));
   }, []);
 
   return (

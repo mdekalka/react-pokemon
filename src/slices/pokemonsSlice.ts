@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk, createAction } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
 import { httpRequest } from '../workflows/httpWorkflow';
 import { RootState } from '../store/store'; 
@@ -32,16 +32,18 @@ const initialState: PokemonState = {
 
 interface FetchPokemonsOptions {
   limit?: number
+  page?: number
   next?: boolean
   previous?: boolean
 }
 
 const getPokemonsUrl = (state: RootState, options: FetchPokemonsOptions) => {
   const { pokemons } = state;
-  const defaultOptions = { limit: 8, previous: false, next: false };
+  const defaultOptions = { limit: 8, previous: false, next: false, page: 0 };
   const requestOptions = { ...defaultOptions, ...options };
+  const params = [`limit=${requestOptions.limit}`, `offset=${(requestOptions.page - 1) * requestOptions.limit}`]
 
-  return requestOptions.next ? pokemons.nextUrl : requestOptions.previous ? pokemons.previousUrl : `/pokemon?limit=${requestOptions.limit}`;
+  return requestOptions.next ? pokemons.nextUrl : requestOptions.previous ? pokemons.previousUrl : `/pokemon?${params.join('&')}`;
 }
 
 export const fetchPokemons = createAsyncThunk<any, FetchPokemonsOptions, { state: RootState }>('pokemon/fetchPokemons', async (options, { dispatch, getState }) => {
