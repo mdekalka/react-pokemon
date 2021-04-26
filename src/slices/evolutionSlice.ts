@@ -50,7 +50,9 @@ const findEvolutionForms = (evolutionData, currentFormName: string) => {
     if (evolutionChain.species) {
       chain.push(evolutionChain.species.name);
 
-      fillEvolutionChain(evolutionChain.evolves_to[0]);
+      const current = evolutionChain.evolves_to.find(({ species }) => species?.name === currentFormName);
+
+      fillEvolutionChain(current || evolutionChain.evolves_to[0]);
     }
   }
 

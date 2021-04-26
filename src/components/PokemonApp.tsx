@@ -1,6 +1,6 @@
 import { useCallback, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useHistory, useParams } from 'react-router-dom';
+import { useHistory, useParams, Link } from 'react-router-dom';
 
 import { fetchPokemons, selectPokemons, selectFetching, selectUrls } from '../slices/pokemonsSlice';
 import { PokemonList } from './PokemonList';
@@ -58,6 +58,12 @@ export const PokemonApp = () => {
               onKeyDown={loadNextPokemons}
             />
           )}
+        </>
+      )}
+      {(!fetching && !pokemons?.length) && (
+        <>
+          <div className="no-results">No pokemons were found, sorry ;(</div>
+          <Link to="/1">Try Home</Link>
         </>
       )}
     </div>
