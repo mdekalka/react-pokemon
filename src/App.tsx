@@ -9,6 +9,7 @@ function App() {
       <Route path="/:pageNumber">
         <PokemonApp />
       </Route>
+      {/* If no page numebr exists - redirect to the first one */}
       <Redirect to="/1" />
     </Switch>
   );

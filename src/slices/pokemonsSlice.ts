@@ -41,7 +41,7 @@ const getPokemonsUrl = (state: RootState, options: FetchPokemonsOptions) => {
   const { pokemons } = state;
   const defaultOptions = { limit: 8, previous: false, next: false, page: 0 };
   const requestOptions = { ...defaultOptions, ...options };
-  const params = [`limit=${requestOptions.limit}`, `offset=${(requestOptions.page - 1) * requestOptions.limit}`]
+  const params = [`offset=${(requestOptions.page - 1) * requestOptions.limit}`, `limit=${requestOptions.limit}`, ]
 
   return requestOptions.next ? pokemons.nextUrl : requestOptions.previous ? pokemons.previousUrl : `/pokemon?${params.join('&')}`;
 }
