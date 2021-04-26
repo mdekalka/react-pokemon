@@ -69,18 +69,9 @@ const getPokemonsInfoUrls = (store: RootState, pokemonList: PokemonList[]) => {
     return result;
   }, []);
 }
-const fetchPokemonsInfoStart = createAction('pokemon/fetchPokemonsInfoStart', () => {
-  return {
-    payload: null
-  }
-})
 
-export const fetchPokemonsInfo = createAsyncThunk<any, PokemonList[], { state: RootState }>('pokemon/fetchPokemonsInfo', async (pokemonList, { getState, dispatch }) => {
-  dispatch(fetchPokemonsInfoStart());
-  // debugger
-
+export const fetchPokemonsInfo = createAsyncThunk<any, PokemonList[], { state: RootState }>('pokemon/fetchPokemonsInfo', async (pokemonList, { getState }) => {
   const requestUrls = getPokemonsInfoUrls(getState(), pokemonList);
-  // debugger
 
   return Promise.all(requestUrls.map(url => httpRequest(url)))
     .then(response => {
