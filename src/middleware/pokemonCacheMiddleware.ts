@@ -3,12 +3,12 @@ import { fetchPokemonsInfo, resetPokemonsInfo } from '../slices/pokemonsSlice';
 const POKEMON_INFO_INVALIDATION_TIME = 1000 * 60 * 60 // 60min
 
 export const pokemonCacheMiddleware = store => next => action => {
-	switch (action.type) {
-		case `${fetchPokemonsInfo.typePrefix}/pending`:
+  switch (action.type) {
+    case `${fetchPokemonsInfo.typePrefix}/pending`:
       pokemonCacheInvalidator(store);
-			break;
-	}
-	return next(action);
+      break;
+  }
+  return next(action);
 };
 
 
