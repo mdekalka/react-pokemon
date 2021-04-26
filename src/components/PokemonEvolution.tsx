@@ -25,7 +25,7 @@ export const PokemonEvolution = ({ pokemon }: PokemonEvolutionProps) => {
   return (
     <div className="pokemon-evolution">
       {<PokeBall fetching={evolutionData?.fetching} finished={isFinished} onClick={handleClick} />}
-      <PokemonEvolutionForms evolution={evolutionData?.evolution} />
+      <PokemonEvolutionForms evolution={evolutionData?.evolution} finished={isFinished} />
     </div>
   )
 }
