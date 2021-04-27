@@ -28,6 +28,12 @@ export const PokemonApp = () => {
   const loadNextPokemons = useCallback(() => loadPokemons(1), [pageNumber]);
 
   useEffect(() => {
+    const page = parseInt(pageNumber);
+
+    if (isNaN(page)) {
+      return history.push('/1')
+    }
+
     dispatch(fetchPokemons({ page: parseInt(pageNumber) }));
   }, [pageNumber]);
 

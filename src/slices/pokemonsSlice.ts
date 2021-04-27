@@ -35,6 +35,12 @@ interface FetchPokemonsOptions {
   page?: number
 }
 
+export const fetchPokemonByName = createAsyncThunk('pokemon/fetchPokemonByName', async (pokemonName: string) => {
+  const response = await httpRequest(`/pokemon/${pokemonName}`);
+
+  return response;
+})
+
 const getPokemonsUrl = (options: FetchPokemonsOptions) => {
   const defaultOptions = { limit: 8, page: 0 };
   const requestOptions = { ...defaultOptions, ...options };
@@ -87,6 +93,17 @@ export const pokemonsSlice = createSlice({
     }
   },
   extraReducers: (builder) => {
+    builder.addCase(fetchPokemonByName.fulfilled, (state, action) => {
+      const { data, error } = action.payload;
+
+      if (error) {
+        state.error = error;
+        return;
+      }
+
+      state.entities[data.name] = data;
+    });
+
     builder.addCase(fetchPokemons.pending, (state) => {
       state.listFetching = true;
     });

@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
 import { httpRequest } from '../workflows/httpWorkflow';
+import { fetchPokemonByName, selectPokemonByName } from '../slices/pokemonsSlice';
 import { RootState } from '../store/store';
 
 interface Species {
@@ -101,8 +102,30 @@ export const fetchPokemonSpecies = createAsyncThunk<any, string, { state: RootSt
   return response;
 });
 
-export const fetchPokemonEvolutionChain = createAsyncThunk('evolution/fetchPokemonEvolutionChain', async ({ url }: { url: string, name: string }) => {
+const getMissingForms = (forms: string[], store: RootState) => {
+  return forms.filter(form => form).reduce((result, form) => {
+    const pokemon = selectPokemonByName(store, form);
+
+    if (!pokemon) {
+      result.push(form)
+    }
+
+    return result;
+  }, []);
+}
+
+export const fetchPokemonEvolutionChain = createAsyncThunk<any, { url: string, name: string }, { state: RootState }>('evolution/fetchPokemonEvolutionChain', async ({ url, name }, { getState, dispatch }) => {
   const response = await httpRequest(url);
+
+  if (!response.error) {
+    const store = getState();
+    const entity = getEntityByName(store.evolution, name);
+    // Evolution chains loaded separately and some of future/past forms might be not loaded yet, load them apart
+    const { previousForm, nextForm } = findEvolutionForms(response.data, entity.evolution.curentForm);
+    const forms = getMissingForms([previousForm, nextForm], store)
+
+    await Promise.all(forms.map(form => dispatch(fetchPokemonByName(form))));
+  }
 
   return response;
 });
